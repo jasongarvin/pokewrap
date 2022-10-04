@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Local files in project directory
+valid_fields.py
+scraps.py
+
 # C extensions
 *.so
 
