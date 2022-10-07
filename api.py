@@ -136,3 +136,65 @@ class apiController:
             print(err)
 
         return {resource_url: None}
+
+
+class apiResourceList():
+    """An object that connects to pokeapi (https://pokeapi.co/)
+    in order to catalog resources available to the user."""
+
+    def __init__(self, endpoint):
+        """Instantiates an apiResourceList object containing
+        a list of possible resources at the given endpoint."""
+        response = self.get_data(endpoint)
+
+        self.name = endpoint
+        self.__results = [i for i in response["results"]]
+        self.count = response["count"]
+
+    def __len__(self):
+        return self.count
+
+    def __iter__(self):
+        return iter(self.__results)
+
+    def __str__(self):
+        return f"{self.__results}"
+
+    def get_data(self, url):
+        """Tries to retrieve data from the cache in case it already exists.
+        Then calls _get_resource() to send GET request to API otherwise.
+
+        Retrieved data gets saved to self.resources as dict with url as key."""
+        try:
+            with open(API_CACHE, "r+", encoding="utf-8") as cache:
+                data = json.load(cache)
+
+            if url in data.keys():
+                return data[url]
+
+        except FileNotFoundError:
+            pass
+
+        data = self._get_resource(url)
+        return data
+
+    def _get_resource(self, url, timeout=10):
+        """Sends a GET request to the API to receive the needed
+        resource and saves it as a dict object before returning it.
+
+        Retrieved data gets saved to self.resources as dict with url as key."""
+        try:
+            response = requests.get(url, timeout)
+            response.raise_for_status()
+
+            return response.json()
+        except requests.exceptions.HTTPError as errh:
+            print(errh)
+        except requests.exceptions.ConnectionError as errc:
+            print(errc)
+        except requests.exceptions.Timeout as errt:
+            print(errt)
+        except requests.exceptions.RequestException as err:
+            print(err)
+
+        return {}
