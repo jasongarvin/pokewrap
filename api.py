@@ -35,6 +35,12 @@ class apiController:
 
         self.loaded = False
 
+    def __str__(self):
+        return f"{self.__dict__['name']}"
+
+    def __repr__(self):
+        return f"<{self.__dict__['endpoint']}-{self.__dict__['name']}>"
+
     def _build_api_url(self, endpoint, resource_id, subresource):
         """Defines the full URL for the HTTP request"""
         return "/".join((endpoint, resource_id, subresource))
