@@ -21,25 +21,20 @@ class apiController:
         ):
         """Initializes the apiController with default uri
         to enable HTTP requests to the API source."""
-        _name, _id = self.convert_name_or_id(endpoint, name_or_id)
-        url = self._build_api_url(endpoint, resource_type, _name)
-        self.__dict__ = {
-            "name": _name,
-            "type": resource_type,
-            "endpoint": endpoint,
-            "id": _id,
-            "url": url}
+        self.endpoint = endpoint
+        self.type = resource_type
+        self.name, self.id = self.convert_name_or_id(endpoint, name_or_id)
+        self.url = self._build_api_url(endpoint, resource_type, self.name)
 
         self.cache_path = cache_path
+
         self.resources = {}
 
-        self.loaded = False
-
     def __str__(self):
-        return f"{self.__dict__['name']}"
+        return f"{self.name}"
 
     def __repr__(self):
-        return f"<{self.__dict__['endpoint']}-{self.__dict__['name']}>"
+        return f"<{self.endpoint}-{self.name}>"
 
     def _build_api_url(self, endpoint, resource_id, subresource):
         """Defines the full URL for the HTTP request"""
@@ -48,7 +43,7 @@ class apiController:
     def _convert_id_to_name(self, endpoint, id_):
         """Takes the endpoint and the resource id, then
         returns the resource name as a str"""
-        url = self._build_api_url(endpoint, self.__dict__["type"], id_)
+        url = self._build_api_url(endpoint, self.type, id_)
         resource_data = self.get_data(url)[url]
 
         return resource_data.get("name", str(id_))
@@ -56,7 +51,7 @@ class apiController:
     def _convert_name_to_id(self, endpoint, name):
         """Takes the endpoint and the resource name, then
         returns the resource id as an int"""
-        url = self._build_api_url(endpoint, self.__dict__["type"], name)
+        url = self._build_api_url(endpoint, self.type, name)
         resource_data = self.get_data(url)[url]
 
         return resource_data.get("id")
@@ -97,7 +92,7 @@ class apiController:
 
         Retrieved data gets saved to self.resources as dict with url as key."""
         if url is None:
-            url = self.__dict__["url"]
+            url = self.url
 
         try:
             with open(API_CACHE, "r+", encoding="utf-8") as cache:
@@ -119,7 +114,7 @@ class apiController:
         resource and saves it as a dict object before returning it.
 
         Retrieved data gets saved to self.resources as dict with url as key."""
-        resource_url = self.__dict__["url"]
+        resource_url = self.url
         try:
             response = requests.get(resource_url, timeout)
             response.raise_for_status()
@@ -148,17 +143,17 @@ class apiResourceList():
         response = self.get_data(endpoint)
 
         self.name = endpoint
-        self.__results = [i for i in response["results"]]
+        self._results = [i for i in response["results"]]
         self.count = response["count"]
 
     def __len__(self):
         return self.count
 
     def __iter__(self):
-        return iter(self.__results)
+        return iter(self._results)
 
     def __str__(self):
-        return f"{self.__results}"
+        return f"{self._results}"
 
     def get_data(self, url):
         """Tries to retrieve data from the cache in case it already exists.
