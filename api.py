@@ -7,9 +7,75 @@ import json
 import requests
 
 
+# TODO Test this whole dang thing and make sure it all works,
+# then write the tests so we can run unit and integration tests later
 API_URI_STUB = "https://pokeapi.co/api/v2/"
 CACHE_DIR = None
 API_CACHE = None
+ENDPOINTS = [
+    "ability",
+    "berry",
+    "berry-firmness",
+    "berry-flavor",
+    "characteristic",
+    "contest-effect",
+    "contest-type",
+    "egg-group",
+    "encounter-condition",
+    "encounter-condition-value",
+    "encounter-method",
+    "evolution-chain",
+    "evolution-trigger",
+    "gender",
+    "generation",
+    "growth-rate",
+    "item",
+    "item-attribute",
+    "item-category",
+    "item-fling-effect",
+    "item-pocket",
+    "language",
+    "location",
+    "location-area",
+    "machine",
+    "move",
+    "move-ailment",
+    "move-battle-style",
+    "move-category",
+    "move-damage-class",
+    "move-learn-method",
+    "move-target",
+    "nature",
+    "pal-park-area",
+    "pokeathlon-stat",
+    "pokedex",
+    "pokemon",
+    "pokemon-color",
+    "pokemon-form",
+    "pokemon-habitat",
+    "pokemon-shape",
+    "pokemon-species",
+    "region",
+    "stat",
+    "super-contest-effect",
+    "type",
+    "version",
+    "version-group",
+]
+
+
+# TODO Incorporate validation into endpoint calls below
+def validate(endpoint, resource_id=None):
+    """Checks if the endpoint is a valid API endpoint within PokeAPI.
+    Raises error if endpoint not in the list of valid endpoints"""
+    if endpoint not in ENDPOINTS:
+        raise ValueError(f"Unknown API endpoint '{endpoint}'")
+
+    if resource_id is not None and not isinstance(resource_id, int):
+
+        raise ValueError(f"Bad id '{resource_id}'")
+
+    return None
 
 
 class apiController:
@@ -30,12 +96,14 @@ class apiController:
 
         self.resources = {}
 
-    def __str__(self):
-        return f"{self.name}"
-
+    # Overloading built-in object methods
     def __repr__(self):
         return f"<{self.endpoint}-{self.name}>"
 
+    def __str__(self):
+        return f"{self.name}"
+
+    # Private methods that don't need to be called directly
     def _build_api_url(self, endpoint, resource_id, subresource):
         """Defines the full URL for the HTTP request"""
         return "/".join((endpoint, resource_id, subresource))
@@ -56,6 +124,30 @@ class apiController:
 
         return resource_data.get("id")
 
+    def _get_resource(self, timeout=10):
+        """Sends a GET request to the API to receive the needed
+        resource and saves it as a dict object before returning it.
+
+        Retrieved data gets saved to self.resources as dict with url as key."""
+        resource_url = self.url
+        try:
+            response = requests.get(resource_url, timeout)
+            response.raise_for_status()
+
+            self.resources[resource_url] = response.json()
+            return {resource_url: response.json()}
+        except requests.exceptions.HTTPError as errh:
+            print(errh)
+        except requests.exceptions.ConnectionError as errc:
+            print(errc)
+        except requests.exceptions.Timeout as errt:
+            print(errt)
+        except requests.exceptions.RequestException as err:
+            print(err)
+
+        return {resource_url: None}
+
+    # Callable methods used by the public consumer of the library
     def cache_resources(self):
         """Save the received resources from API call to JSON file"""
         with open(self.cache_path, "r+", encoding="utf-8") as file:
@@ -109,29 +201,6 @@ class apiController:
 
         return data
 
-    def _get_resource(self, timeout=10):
-        """Sends a GET request to the API to receive the needed
-        resource and saves it as a dict object before returning it.
-
-        Retrieved data gets saved to self.resources as dict with url as key."""
-        resource_url = self.url
-        try:
-            response = requests.get(resource_url, timeout)
-            response.raise_for_status()
-
-            self.resources[resource_url] = response.json()
-            return {resource_url: response.json()}
-        except requests.exceptions.HTTPError as errh:
-            print(errh)
-        except requests.exceptions.ConnectionError as errc:
-            print(errc)
-        except requests.exceptions.Timeout as errt:
-            print(errt)
-        except requests.exceptions.RequestException as err:
-            print(err)
-
-        return {resource_url: None}
-
 
 class apiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
@@ -146,33 +215,17 @@ class apiResourceList():
         self._results = [i for i in response["results"]]
         self.count = response["count"]
 
-    def __len__(self):
-        return self.count
-
+    # Overloading built-in object methods
     def __iter__(self):
         return iter(self._results)
+
+    def __len__(self):
+        return self.count
 
     def __str__(self):
         return f"{self._results}"
 
-    def get_data(self, url):
-        """Tries to retrieve data from the cache in case it already exists.
-        Then calls _get_resource() to send GET request to API otherwise.
-
-        Retrieved data gets saved to self.resources as dict with url as key."""
-        try:
-            with open(API_CACHE, "r+", encoding="utf-8") as cache:
-                data = json.load(cache)
-
-            if url in data.keys():
-                return data[url]
-
-        except FileNotFoundError:
-            pass
-
-        data = self._get_resource(url)
-        return data
-
+    # Private methods that don't need to be called directly
     def _get_resource(self, url, timeout=10):
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
@@ -193,3 +246,22 @@ class apiResourceList():
             print(err)
 
         return {}
+
+    # Callable methods used by the public consumer of the library
+    def get_data(self, url):
+        """Tries to retrieve data from the cache in case it already exists.
+        Then calls _get_resource() to send GET request to API otherwise.
+
+        Retrieved data gets saved to self.resources as dict with url as key."""
+        try:
+            with open(API_CACHE, "r+", encoding="utf-8") as cache:
+                data = json.load(cache)
+
+            if url in data.keys():
+                return data[url]
+
+        except FileNotFoundError:
+            pass
+
+        data = self._get_resource(url)
+        return data

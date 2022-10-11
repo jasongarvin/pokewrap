@@ -4,7 +4,6 @@ __pycache__/
 *$py.class
 
 # Local files in project directory
-valid_fields.py
 scraps.py
 
 # C extensions
