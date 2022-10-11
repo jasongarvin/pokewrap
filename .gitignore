@@ -5,6 +5,7 @@ __pycache__/
 
 # Local files in project directory
 scraps.py
+main.py
 
 # C extensions
 *.so

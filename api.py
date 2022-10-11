@@ -5,14 +5,15 @@ it easier in Python and within the Pokemon Tools library.
 
 import json
 import requests
+import os
 
 
 # TODO Test this whole dang thing and make sure it all works,
 # then write the tests so we can run unit and integration tests later
 API_URI_STUB = "https://pokeapi.co/api/v2/"
 CACHE_DIR = None
-API_CACHE = None
-ENDPOINTS = [
+API_CACHE = os.getcwd()
+RESOURCE_TYPE = [
     "ability",
     "berry",
     "berry-firmness",
@@ -64,20 +65,6 @@ ENDPOINTS = [
 ]
 
 
-# TODO Incorporate validation into endpoint calls below
-def validate(endpoint, resource_id=None):
-    """Checks if the endpoint is a valid API endpoint within PokeAPI.
-    Raises error if endpoint not in the list of valid endpoints"""
-    if endpoint not in ENDPOINTS:
-        raise ValueError(f"Unknown API endpoint '{endpoint}'")
-
-    if resource_id is not None and not isinstance(resource_id, int):
-
-        raise ValueError(f"Bad id '{resource_id}'")
-
-    return None
-
-
 class apiController:
     """An object that manages the connection between pokeapi
     (https://pokeapi.co/) and the running application."""
@@ -88,7 +75,7 @@ class apiController:
         """Initializes the apiController with default uri
         to enable HTTP requests to the API source."""
         self.endpoint = endpoint
-        self.type = resource_type
+        self.type = self._validate_type(resource_type)
         self.name, self.id = self.convert_name_or_id(endpoint, name_or_id)
         self.url = self._build_api_url(endpoint, resource_type, self.name)
 
@@ -146,6 +133,14 @@ class apiController:
             print(err)
 
         return {resource_url: None}
+
+    def _validate_type(self, resource_type):
+        """Checks if the endpoint is a valid API endpoint within PokeAPI.
+        Raises error if endpoint not in the list of valid resource types"""
+        if resource_type not in RESOURCE_TYPE:
+            raise ValueError(f"Unknown API endpoint '{resource_type}'")
+
+        return resource_type
 
     # Callable methods used by the public consumer of the library
     def cache_resources(self):
