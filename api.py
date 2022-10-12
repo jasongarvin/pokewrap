@@ -4,15 +4,15 @@ it easier in Python and within the Pokemon Tools library.
 """
 
 import json
-import requests
 import os
+import requests
 
 
 # TODO Test this whole dang thing and make sure it all works,
 # then write the tests so we can run unit and integration tests later
-API_URI_STUB = "https://pokeapi.co/api/v2/"
+API_URI_STUB = "https://pokeapi.co/api/v2"
 CACHE_DIR = None
-API_CACHE = os.getcwd()
+API_CACHE = os.path.join(os.getcwd(), "cache.json")
 RESOURCE_TYPE = [
     "ability",
     "berry",
@@ -70,18 +70,19 @@ class apiController:
     (https://pokeapi.co/) and the running application."""
 
     def __init__(
-        self, endpoint, resource_type, name_or_id, cache_path="cache.json"
+        self, endpoint, resource_type, name_or_id, cache_path=API_CACHE
         ):
         """Initializes the apiController with default uri
         to enable HTTP requests to the API source."""
-        self.endpoint = endpoint
-        self.type = self._validate_type(resource_type)
-        self.name, self.id = self.convert_name_or_id(endpoint, name_or_id)
-        self.url = self._build_api_url(endpoint, resource_type, self.name)
-
+        self.resources = {}
         self.cache_path = cache_path
 
-        self.resources = {}
+        self.endpoint = endpoint
+        self.type = self._validate_type(resource_type)
+        self.name, self.id = self.convert_name_or_id(endpoint,
+                                                     resource_type,
+                                                     name_or_id)
+        self.url = self._build_api_url(endpoint, resource_type, self.name)
 
     # Overloading built-in object methods
     def __repr__(self):
@@ -91,38 +92,39 @@ class apiController:
         return f"{self.name}"
 
     # Private methods that don't need to be called directly
-    def _build_api_url(self, endpoint, resource_id, subresource):
+    def _build_api_url(self, endpoint, resource_type, name_or_id):
         """Defines the full URL for the HTTP request"""
-        return "/".join((endpoint, resource_id, subresource))
+        return "/".join((endpoint, resource_type, name_or_id))
 
-    def _convert_id_to_name(self, endpoint, id_):
+    def _convert_id_to_name(self, endpoint, resource_type, id_):
         """Takes the endpoint and the resource id, then
         returns the resource name as a str"""
-        url = self._build_api_url(endpoint, self.type, id_)
-        resource_data = self.get_data(url)[url]
+        url = self._build_api_url(endpoint, resource_type, id_)
+        resource_data = self.get_data(url)
 
-        return resource_data.get("name", str(id_))
+        return resource_data[url].get("name", str(id_))
 
-    def _convert_name_to_id(self, endpoint, name):
+    def _convert_name_to_id(self, endpoint, resource_type, name):
         """Takes the endpoint and the resource name, then
         returns the resource id as an int"""
-        url = self._build_api_url(endpoint, self.type, name)
-        resource_data = self.get_data(url)[url]
+        url = self._build_api_url(endpoint, resource_type, name)
+        resource_data = self.get_data(url)
 
-        return resource_data.get("id")
+        return resource_data[url].get("id")
 
-    def _get_resource(self, timeout=10):
+    def _get_resource(self, url=None, timeout=10):
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
         Retrieved data gets saved to self.resources as dict with url as key."""
-        resource_url = self.url
+        if url is None:
+            url = self.url
         try:
-            response = requests.get(resource_url, timeout)
+            response = requests.get(url, timeout=timeout)
             response.raise_for_status()
 
-            self.resources[resource_url] = response.json()
-            return {resource_url: response.json()}
+            self.resources[url] = response.json()
+            return {url: response.json()}
         except requests.exceptions.HTTPError as errh:
             print(errh)
         except requests.exceptions.ConnectionError as errc:
@@ -132,7 +134,7 @@ class apiController:
         except requests.exceptions.RequestException as err:
             print(err)
 
-        return {resource_url: None}
+        return {url: None}
 
     def _validate_type(self, resource_type):
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
@@ -145,7 +147,11 @@ class apiController:
     # Callable methods used by the public consumer of the library
     def cache_resources(self):
         """Save the received resources from API call to JSON file"""
-        with open(self.cache_path, "r+", encoding="utf-8") as file:
+        # TODO Handle the different states of the cache, including
+        # File does not exist
+        # File is empty
+        # File has data (append to the end)
+        with open(self.cache_path, "r", encoding="utf-8") as file:
             file_data = json.load(file)
 
             # Iterate through saved URLs and store content with existing
@@ -155,19 +161,21 @@ class apiController:
                     file_data[key] = value
 
             file.seek(0)
+
+        with open(self.cache_path, "w", encoding="utf-8") as file:
             json.dump(file_data, file)
 
-    def convert_name_or_id(self, endpoint, name_or_id):
+    def convert_name_or_id(self, endpoint, resource_type, name_or_id):
         """Converts a name to an ID or an ID to a name,
         depending on type.
 
         Assumes ID is int and name is str."""
         if isinstance(name_or_id, int):
             id_ = name_or_id
-            name = self._convert_id_to_name(endpoint, id_)
+            name = self._convert_id_to_name(endpoint, resource_type, id_)
         elif isinstance(name_or_id, str):
             name = name_or_id
-            id_ = self._convert_name_to_id(endpoint, name)
+            id_ = self._convert_name_to_id(endpoint, resource_type, name)
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")
 
@@ -186,12 +194,14 @@ class apiController:
                 data = json.load(cache)
 
             if url in data.keys():
+                self.resources[url] = data[url]
+                self.cache_resources()
                 return {url: data[url]}
 
         except FileNotFoundError:
             pass
 
-        data = self._get_resource()
+        data = self._get_resource(url)
         self.cache_resources()
 
         return data
@@ -227,7 +237,7 @@ class apiResourceList():
 
         Retrieved data gets saved to self.resources as dict with url as key."""
         try:
-            response = requests.get(url, timeout)
+            response = requests.get(url, timeout=timeout)
             response.raise_for_status()
 
             return response.json()

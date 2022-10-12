@@ -4,8 +4,9 @@ __pycache__/
 *$py.class
 
 # Local files in project directory
-scraps.py
+cache.json
 main.py
+scraps.py
 
 # C extensions
 *.so
