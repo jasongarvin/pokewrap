@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 
 # Local files in project directory
+# tests/ and __init__.py will be added later once ready
+tests/
+__init__.py
 cache.json
 main.py
 scraps.py

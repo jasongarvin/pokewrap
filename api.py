@@ -8,11 +8,10 @@ import os
 import requests
 
 
-# TODO Test this whole dang thing and make sure it all works,
-# then write the tests so we can run unit and integration tests later
+# TODO Write Unit Tests and Integration Tests to ensure everything works
 API_URI_STUB = "https://pokeapi.co/api/v2"
-CACHE_DIR = None
-API_CACHE = os.path.join(os.getcwd(), "cache.json")
+CACHE_DIR = os.getcwd()
+API_CACHE = os.path.join(CACHE_DIR, "cache.json")
 RESOURCE_TYPE = [
     "ability",
     "berry",
@@ -86,7 +85,7 @@ class apiController:
 
     # Overloading built-in object methods
     def __repr__(self):
-        return f"<{self.endpoint}-{self.name}>"
+        return f"<{self.url} - {self.name}>"
 
     def __str__(self):
         return f"{self.name}"
@@ -147,22 +146,20 @@ class apiController:
     # Callable methods used by the public consumer of the library
     def cache_resources(self):
         """Save the received resources from API call to JSON file"""
-        # TODO Handle the different states of the cache, including
-        # File does not exist
-        # File is empty
-        # File has data (append to the end)
-        with open(self.cache_path, "r", encoding="utf-8") as file:
-            file_data = json.load(file)
+        file_data = {}
 
-            # Iterate through saved URLs and store content with existing
-            # data from cache file with key as URL if dict has data
-            for (key, value) in self.resources.items():
-                if value is not None:
-                    file_data[key] = value
+        if os.path.exists(API_CACHE):
+            with open(self.cache_path, "r", encoding="utf-8") as file:
+                file_data = json.load(file)
 
-            file.seek(0)
+        # Add new resources to file_data in addition to imported data
+        # Avoiding duplicates, to ensure the cache properly tracks resources
+        for (key, value) in self.resources.items():
+            if value is not None and key not in file_data.keys():
+                file_data[key] = value
 
         with open(self.cache_path, "w", encoding="utf-8") as file:
+            file.seek(0)
             json.dump(file_data, file)
 
     def convert_name_or_id(self, endpoint, resource_type, name_or_id):
@@ -173,9 +170,11 @@ class apiController:
         if isinstance(name_or_id, int):
             id_ = name_or_id
             name = self._convert_id_to_name(endpoint, resource_type, id_)
+
         elif isinstance(name_or_id, str):
             name = name_or_id
             id_ = self._convert_name_to_id(endpoint, resource_type, name)
+
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")
 
