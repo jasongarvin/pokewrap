@@ -10,6 +10,7 @@ import requests
 
 # TODO Write Unit Tests and Integration Tests to ensure everything works
 API_URI_STUB = "https://pokeapi.co/api/v2"
+# TODO Fix how cache directories are assigned (and give them their own space)
 CACHE_DIR = os.getcwd()
 API_CACHE = os.path.join(CACHE_DIR, "cache.json")
 RESOURCE_TYPE = [
@@ -83,14 +84,12 @@ class apiController:
                                                      name_or_id)
         self.url = self._build_api_url(endpoint, resource_type, self.name)
 
-    # Overloading built-in object methods
     def __repr__(self):
         return f"<{self.url} - {self.name}>"
 
     def __str__(self):
         return f"{self.name}"
 
-    # Private methods that don't need to be called directly
     def _build_api_url(self, endpoint, resource_type, name_or_id):
         """Defines the full URL for the HTTP request"""
         return "/".join((endpoint, resource_type, name_or_id))
@@ -143,7 +142,7 @@ class apiController:
 
         return resource_type
 
-    # Callable methods used by the public consumer of the library
+    # TODO Fix caching to adhere to cache best practices
     def cache_resources(self):
         """Save the received resources from API call to JSON file"""
         file_data = {}
@@ -219,7 +218,6 @@ class apiResourceList():
         self._results = [i for i in response["results"]]
         self.count = response["count"]
 
-    # Overloading built-in object methods
     def __iter__(self):
         return iter(self._results)
 
@@ -229,7 +227,6 @@ class apiResourceList():
     def __str__(self):
         return f"{self._results}"
 
-    # Private methods that don't need to be called directly
     def _get_resource(self, url, timeout=10):
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
@@ -251,7 +248,6 @@ class apiResourceList():
 
         return {}
 
-    # Callable methods used by the public consumer of the library
     def get_data(self, url):
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
