@@ -269,3 +269,16 @@ class apiResourceList():
 
         data = self._get_resource(url)
         return data
+
+
+if __name__ == "__main__":
+    # Quick demos if run as script instead of imported as module
+    tmp = apiController(API_URI_STUB, "pokemon", "gengar")
+    print(repr(tmp))
+
+    tmp.get_data()
+    print(repr(tmp))
+
+    new_endpoint = "/".join((API_URI_STUB, "pokemon"))
+    new_tmp = apiResourceList(new_endpoint)
+    print(new_tmp)
