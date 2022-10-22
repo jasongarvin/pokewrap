@@ -142,24 +142,46 @@ class apiController:
 
         return resource_type
 
-    # TODO Fix caching to adhere to cache best practices
-    def cache_resources(self):
-        """Save the received resources from API call to JSON file"""
+    def load_cache(self):
+        """Loads the given data from the cache, if applicable.
+        Handles errors that could be thrown based on the possible
+        states the cache can exist in (doesn't exist, open, etc.)"""
         file_data = {}
 
-        if os.path.exists(API_CACHE):
+        try:
             with open(self.cache_path, "r", encoding="utf-8") as file:
                 file_data = json.load(file)
+        except FileNotFoundError:
+            pass
+        except OSError as error:
+            # Cache already open
+            if error.errno == 11:
+                pass
 
-        # Add new resources to file_data in addition to imported data
-        # Avoiding duplicates, to ensure the cache properly tracks resources
-        for (key, value) in self.resources.items():
-            if value is not None and key not in file_data.keys():
-                file_data[key] = value
+        return file_data
 
-        with open(self.cache_path, "w", encoding="utf-8") as file:
-            file.seek(0)
-            json.dump(file_data, file)
+    def save_cache(self):
+        """Saves all held information into the cache if an identical
+        cache entry doesn't already exist."""
+        file_data = self.load_cache()
+
+        if not isinstance(file_data, dict):
+            raise ValueError("Could not save non-dict data")
+
+        try:
+            for (key, value) in self.resources.items():
+                if value is not None and key not in file_data.keys():
+                    file_data[key] = value
+
+            with open(self.cache_path, "w", encoding="utf-8") as file:
+                file.seek(0)
+                json.dump(file_data, file)
+        except OSError as error:
+            # Cache already open
+            if error.errno == 11:
+                raise KeyError("Cache could not be opened.") from error
+            else:
+                raise
 
     def convert_name_or_id(self, endpoint, resource_type, name_or_id):
         """Converts a name to an ID or an ID to a name,
@@ -187,20 +209,14 @@ class apiController:
         if url is None:
             url = self.url
 
-        try:
-            with open(API_CACHE, "r+", encoding="utf-8") as cache:
-                data = json.load(cache)
+        data = self.load_cache()
 
-            if url in data.keys():
-                self.resources[url] = data[url]
-                self.cache_resources()
-                return {url: data[url]}
-
-        except FileNotFoundError:
-            pass
+        if url in data.keys():
+            self.resources[url] = data[url]
+            return {url: data[url]}
 
         data = self._get_resource(url)
-        self.cache_resources()
+        self.save_cache()
 
         return data
 
@@ -248,6 +264,7 @@ class apiResourceList():
 
         return {}
 
+    # TODO Fix caching to match how apiController does it
     def get_data(self, url):
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
