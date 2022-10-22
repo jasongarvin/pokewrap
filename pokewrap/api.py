@@ -142,7 +142,7 @@ class apiController:
 
         return resource_type
 
-    def load_cache(self):
+    def cache_load(self):
         """Loads the given data from the cache, if applicable.
         Handles errors that could be thrown based on the possible
         states the cache can exist in (doesn't exist, open, etc.)"""
@@ -157,16 +157,15 @@ class apiController:
             # Cache already open
             if error.errno == 11:
                 pass
+            else:
+                raise error
 
         return file_data
 
-    def save_cache(self):
+    def cache_save(self):
         """Saves all held information into the cache if an identical
         cache entry doesn't already exist."""
-        file_data = self.load_cache()
-
-        if not isinstance(file_data, dict):
-            raise ValueError("Could not save non-dict data")
+        file_data = self.cache_load()
 
         try:
             for (key, value) in self.resources.items():
@@ -209,14 +208,14 @@ class apiController:
         if url is None:
             url = self.url
 
-        data = self.load_cache()
+        data = self.cache_load()
 
         if url in data.keys():
             self.resources[url] = data[url]
             return {url: data[url]}
 
         data = self._get_resource(url)
-        self.save_cache()
+        self.cache_save()
 
         return data
 
@@ -225,14 +224,18 @@ class apiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user."""
 
-    def __init__(self, endpoint):
+    def __init__(self, endpoint, cache_path=API_CACHE):
         """Instantiates an apiResourceList object containing
         a list of possible resources at the given endpoint."""
-        response = self.get_data(endpoint)
+        self.endpoint = endpoint
+        self.cache_path = cache_path
 
-        self.name = endpoint
-        self._results = [i for i in response["results"]]
-        self.count = response["count"]
+        # Dictionary version of results for caching
+        self.response = self.get_data()
+        self.cache_save()
+
+        self._results = [i for i in self.response["results"]]
+        self.count = self.response["count"]
 
     def __iter__(self):
         return iter(self._results)
@@ -243,13 +246,13 @@ class apiResourceList():
     def __str__(self):
         return f"{self._results}"
 
-    def _get_resource(self, url, timeout=10):
+    def _get_resource(self, timeout=10):
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
         Retrieved data gets saved to self.resources as dict with url as key."""
         try:
-            response = requests.get(url, timeout=timeout)
+            response = requests.get(self.endpoint, timeout=timeout)
             response.raise_for_status()
 
             return response.json()
@@ -264,24 +267,59 @@ class apiResourceList():
 
         return {}
 
-    # TODO Fix caching to match how apiController does it
-    def get_data(self, url):
+    def cache_load(self):
+        """Loads the given data from the cache, if applicable.
+        Handles errors that could be thrown based on the possible
+        states the cache can exist in (doesn't exist, open, etc.)"""
+        file_data = {}
+
+        try:
+            with open(self.cache_path, "r", encoding="utf-8") as file:
+                file_data = json.load(file)
+        except FileNotFoundError:
+            pass
+        except OSError as error:
+            # Cache already open
+            if error.errno == 11:
+                pass
+            else:
+                raise error
+
+        return file_data
+
+    def cache_save(self):
+        """Saves all held information into the cache if an identical
+        cache entry doesn't already exist."""
+        file_data = self.cache_load()
+
+        try:
+            if (self.response is not None and
+                self.endpoint not in file_data.keys()):
+                file_data[self.endpoint] = self.response
+
+            with open(self.cache_path, "w", encoding="utf-8") as file:
+                file.seek(0)
+                json.dump(file_data, file)
+        except OSError as error:
+            # Cache already open
+            if error.errno == 11:
+                raise KeyError("Cache could not be opened.") from error
+            else:
+                raise
+
+    def get_data(self):
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
         Retrieved data gets saved to self.resources as dict with url as key."""
-        try:
-            with open(API_CACHE, "r+", encoding="utf-8") as cache:
-                data = json.load(cache)
+        data = self.cache_load()
 
-            if url in data.keys():
-                return data[url]
+        if self.endpoint in data.keys():
+            contents = data[self.endpoint]
+        else:
+            contents = self._get_resource()
 
-        except FileNotFoundError:
-            pass
-
-        data = self._get_resource(url)
-        return data
+        return contents
 
 
 if __name__ == "__main__":
