@@ -65,14 +65,14 @@ RESOURCE_TYPE = [
 ]
 
 
-class apiController:
+class ApiController:
     """An object that manages the connection between pokeapi
     (https://pokeapi.co/) and the running application."""
 
     def __init__(
         self, endpoint, resource_type, name_or_id, cache_path=API_CACHE
         ):
-        """Initializes the apiController with default uri
+        """Initializes the ApiController with default uri
         to enable HTTP requests to the API source."""
         self.resources = {}
         self.cache_path = cache_path
@@ -220,12 +220,12 @@ class apiController:
         return data
 
 
-class apiResourceList():
+class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user."""
 
     def __init__(self, endpoint, cache_path=API_CACHE):
-        """Instantiates an apiResourceList object containing
+        """Instantiates an ApiResourceList object containing
         a list of possible resources at the given endpoint."""
         self.endpoint = endpoint
         self.cache_path = cache_path
@@ -324,12 +324,12 @@ class apiResourceList():
 
 if __name__ == "__main__":
     # Quick demos if run as script instead of imported as module
-    tmp = apiController(API_URI_STUB, "pokemon", "gengar")
+    tmp = ApiController(API_URI_STUB, "pokemon", "gengar")
     print(repr(tmp))
 
     tmp.get_data()
     print(repr(tmp))
 
     new_endpoint = "/".join((API_URI_STUB, "pokemon"))
-    new_tmp = apiResourceList(new_endpoint)
+    new_tmp = ApiResourceList(new_endpoint)
     print(new_tmp)
