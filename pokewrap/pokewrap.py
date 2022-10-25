@@ -1,19 +1,25 @@
 """
-The beginnings of a module designed to wrap the PokeAPI API and consume
-it easier in Python and within the Pokemon Tools library.
+The beginnings of a module designed to wrap the PokeAPI API
+and consume it easier in Python and within the Pokemon Tools library.
+
+This module gets imported into the __init__.py file in this
+directory to ease the importing process when working in adjacent
+directories and for clean importing into the test suite.
+
+For more information on this module and how it works,
+please check out the __init__.py file or read the README in
+the outer directory.
 """
+
+# TODO Write Unit Tests and Integration Tests to ensure everything works
 
 import json
 import os
 import requests
 
 
-# TODO Write Unit Tests and Integration Tests to ensure everything works
 API_URI_STUB = "https://pokeapi.co/api/v2"
-# TODO Fix how cache directories are assigned (and give them their own space)
-CACHE_DIR = os.getcwd()
-API_CACHE = os.path.join(CACHE_DIR, "cache.json")
-RESOURCE_TYPE = [
+_RESOURCE_TYPE = [
     "ability",
     "berry",
     "berry-firmness",
@@ -69,13 +75,11 @@ class ApiController:
     """An object that manages the connection between pokeapi
     (https://pokeapi.co/) and the running application."""
 
-    def __init__(
-        self, endpoint, resource_type, name_or_id, cache_path=API_CACHE
-        ):
+    def __init__(self, endpoint, resource_type, name_or_id):
         """Initializes the ApiController with default uri
         to enable HTTP requests to the API source."""
         self.resources = {}
-        self.cache_path = cache_path
+        self.cache_path = self._build_cache_path()
 
         self.endpoint = endpoint
         self.type = self._validate_type(resource_type)
@@ -93,6 +97,14 @@ class ApiController:
     def _build_api_url(self, endpoint, resource_type, name_or_id):
         """Defines the full URL for the HTTP request"""
         return "/".join((endpoint, resource_type, name_or_id))
+
+    def _build_cache_path(self):
+        """Finds the cwd, then builds the desired path to where
+        all cached resources should be saved."""
+        cache_dir = os.getcwd()
+        api_cache = os.path.join(cache_dir, "cache.json")
+
+        return api_cache
 
     def _convert_id_to_name(self, endpoint, resource_type, id_):
         """Takes the endpoint and the resource id, then
@@ -137,7 +149,7 @@ class ApiController:
     def _validate_type(self, resource_type):
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
         Raises error if endpoint not in the list of valid resource types"""
-        if resource_type not in RESOURCE_TYPE:
+        if resource_type not in _RESOURCE_TYPE:
             raise ValueError(f"Unknown API endpoint '{resource_type}'")
 
         return resource_type
@@ -224,11 +236,11 @@ class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user."""
 
-    def __init__(self, endpoint, cache_path=API_CACHE):
+    def __init__(self, endpoint):
         """Instantiates an ApiResourceList object containing
         a list of possible resources at the given endpoint."""
         self.endpoint = endpoint
-        self.cache_path = cache_path
+        self.cache_path = self._build_cache_path()
 
         # Dictionary version of results for caching
         self.response = self.get_data()
@@ -245,6 +257,14 @@ class ApiResourceList():
 
     def __str__(self):
         return f"{self._results}"
+
+    def _build_cache_path(self):
+        """Finds the cwd, then builds the desired path to where
+        all cached resources should be saved."""
+        cache_dir = os.getcwd()
+        api_cache = os.path.join(cache_dir, "cache.json")
+
+        return api_cache
 
     def _get_resource(self, timeout=10):
         """Sends a GET request to the API to receive the needed

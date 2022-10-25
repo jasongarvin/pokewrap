@@ -16,4 +16,4 @@ __copyright__ = "Copyright Jason Garvin 2022"
 __license__ = "MIT"
 
 from .pokewrap import ApiController, ApiResourceList
-from .pokewrap import API_CACHE, API_URI_STUB, RESOURCE_TYPE
+from .pokewrap import API_CACHE, API_URI_STUB, _RESOURCE_TYPE
