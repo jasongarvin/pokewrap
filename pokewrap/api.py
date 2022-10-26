@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 The beginnings of a module designed to wrap the PokeAPI API
 and consume it easier in Python and within the Pokemon Tools library.

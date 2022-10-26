@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A basic template to fill out with unit tests as I learn more about them.
 
 Note that using unittest requires creating classes to run the tests
