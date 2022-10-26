@@ -3,12 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Local files in project directory
-# tests/ will be added later once ready
-tests/
+# Local cache
 cache.json
-main.py
-scraps.py
+
+# Local files in project directory for experimentation
+pokewrap/scraps.py
 
 # C extensions
 *.so
