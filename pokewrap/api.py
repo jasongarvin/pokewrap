@@ -12,15 +12,13 @@ please check out the __init__.py file or read the README in
 the outer directory.
 """
 
-# TODO Write Unit Tests and Integration Tests to ensure everything works
-
 import json
 import os
 import requests
 
 
 API_URI_STUB = "https://pokeapi.co/api/v2"
-_RESOURCE_TYPE = [
+_RESOURCE_TYPE = (
     "ability",
     "berry",
     "berry-firmness",
@@ -69,7 +67,7 @@ _RESOURCE_TYPE = [
     "type",
     "version",
     "version-group",
-]
+)
 
 
 class ApiController:
@@ -83,10 +81,13 @@ class ApiController:
         self.cache_path = self._build_cache_path()
 
         self.endpoint = endpoint
+
         self.type = self._validate_type(resource_type)
+
         self.name, self.id = self.convert_name_or_id(endpoint,
                                                      resource_type,
                                                      name_or_id)
+
         self.url = self._build_api_url(endpoint, resource_type, self.name)
 
     def __repr__(self):
@@ -231,6 +232,39 @@ class ApiController:
         self.cache_save()
 
         return data
+
+    def set_cache(self, new_cache_path=None):
+        """Change the cache path to new_cache_path, which can be either
+        an absolute or relative path.
+
+        If the directory does not exist, it will be created. If None is passed
+        the cache will default to the cwd.
+
+        Ensure the cache is changed BEFORE any work is done using the library,
+        if at all. Otherwise errors will arise in discovering the
+        cache directory during runtime."""
+        if new_cache_path is None:
+            new_cache_path = self._build_cache_path()
+
+        safe_cache_dir = self.safe_make_dirs(os.path.abspath(new_cache_path))
+        safe_api_cache = os.path.join(safe_cache_dir, "cache,json")
+
+        return safe_cache_dir, safe_api_cache
+
+    @staticmethod
+    def safe_make_dirs(path, mode=0o777):
+        """Create a leaf directory and all intermediate directories safely.
+        Takes a path as either a relative or absolute directory tree
+        to create new directories. Mode sets the directory permissions
+        in octal"""
+        try:
+            os.makedirs(path, mode)
+        except OSError as error:
+            if error.errno != 17:
+                # File exists
+                raise
+
+        return path
 
 
 class ApiResourceList():

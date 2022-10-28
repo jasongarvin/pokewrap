@@ -5,6 +5,8 @@ Note that using unittest requires creating classes to run the tests
 by inheriting from unittest.TestCase and prefers using its own assert
 methods instead of the regular assert() call."""
 
+# TODO: Test the remaining elements of pokewrap besides variables
+
 import unittest
 import sys
 import os
