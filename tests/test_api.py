@@ -10,6 +10,7 @@ methods instead of the regular assert() call."""
 import unittest
 import sys
 import os
+import requests
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_DIR = os.path.dirname(SCRIPT_DIR)
@@ -26,6 +27,24 @@ class TestGlobals(unittest.TestCase):
         """Api uri stub in module == correct PokeAPI url"""
         api_uri = api.API_URI_STUB
         self.assertEqual(api_uri, "https://pokeapi.co/api/v2")
+
+    def test_endpoint_validity(self):
+        """All endpoints in _RESOURCES are valid and return 400 code"""
+        try:
+            response = requests.get(api.API_URI_STUB, timeout=10)
+            response.raise_for_status()
+            key_set = response.json().keys()
+
+        except requests.exceptions.HTTPError as errh:
+            print(errh)
+        except requests.exceptions.ConnectionError as errc:
+            print(errc)
+        except requests.exceptions.Timeout as errt:
+            print(errt)
+        except requests.exceptions.RequestException as err:
+            print(err)
+
+        self.assertTrue(set(key_set).issuperset(set(api._RESOURCE_TYPE)))
 
 
 if __name__ == "__main__":
