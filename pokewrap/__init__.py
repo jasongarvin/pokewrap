@@ -16,4 +16,4 @@ __copyright__ = "Copyright Jason Garvin 2022"
 __license__ = "MIT"
 
 from .api import ApiController, ApiResourceList
-from .api import API_URI_STUB, _RESOURCE_TYPE
+from .api import API_URI_STUB, RESOURCE_TYPE

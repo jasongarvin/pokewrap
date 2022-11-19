@@ -18,7 +18,7 @@ import requests
 
 
 API_URI_STUB = "https://pokeapi.co/api/v2"
-_RESOURCE_TYPE = (
+RESOURCE_TYPE = (
     "ability",
     "berry",
     "berry-firmness",
@@ -151,7 +151,7 @@ class ApiController:
     def _validate_type(self, resource_type):
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
         Raises error if endpoint not in the list of valid resource types"""
-        if resource_type not in _RESOURCE_TYPE:
+        if resource_type not in RESOURCE_TYPE:
             raise ValueError(f"Unknown API endpoint '{resource_type}'")
 
         return resource_type
@@ -381,6 +381,7 @@ if __name__ == "__main__":
     # Quick demos if run as script instead of imported as module
     tmp = ApiController(API_URI_STUB, "pokemon", "gengar")
     print(repr(tmp))
+    print(tmp.resources)
 
     tmp.get_data()
     print(repr(tmp))
