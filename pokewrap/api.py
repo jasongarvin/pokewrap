@@ -381,7 +381,6 @@ if __name__ == "__main__":
     # Quick demos if run as script instead of imported as module
     tmp = ApiController(API_URI_STUB, "pokemon", "gengar")
     print(repr(tmp))
-    print(tmp.resources)
 
     tmp.get_data()
     print(repr(tmp))
