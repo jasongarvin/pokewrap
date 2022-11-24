@@ -20,10 +20,11 @@ sys.path.append(MODULE_DIR)
 from pokewrap import api
 
 # Set up a test instance of ApiController for use in testing
-TEST_OBJECT = api.ApiController(api.API_URI_STUB, "pokemon", "gengar")
+TEST_NUM = 94
+TEST_POKEMON = "gengar"
+TEST_OBJECT = api.ApiController(api.API_URI_STUB, "pokemon", TEST_POKEMON)
 
-# TODO include additional tests to ensure all global cases
-# are working correctly in the pokewrap module
+
 class TestApi(unittest.TestCase):
     """A basic test template"""
 
@@ -42,22 +43,38 @@ class TestApi(unittest.TestCase):
         self.assertEqual(TEST_OBJECT.cache_path, cache_path)
 
     def test_id(self):
-        """Tests if id value is generated correctly in ApiController"""
-        self.assertEqual(TEST_OBJECT.id, 94)
+        """Tests if id value is generated correctly in ApiController
+
+        Also confirms that _convert_id_to_name and
+        _convert_name_to_id internal methods are working.
+        """
+        self.assertEqual(TEST_OBJECT.id, TEST_NUM)
+
+    def test_is_resources_empty(self):
+        """Tests that the ApiController object gets instantiated
+        correctly and generates the right values."""
+        self.assertNotEqual(TEST_OBJECT.resources, {})
 
     def test_name(self):
-        """Tests if name value is generated correctly in ApiController"""
-        self.assertEqual(TEST_OBJECT.name, "gengar")
+        """Tests if name value is generated correctly in ApiController
+
+        Also confirms that _convert_id_to_name and
+        _convert_name_to_id internal methods are working.
+        """
+        self.assertEqual(TEST_OBJECT.name, TEST_POKEMON)
 
     def test_object_type(self):
         """Tests that the type of resource brought into ApiController
         exists inside RESOURCE_TYPE tuple."""
         self.assertIn(TEST_OBJECT.type, api.RESOURCE_TYPE)
 
-    def test_resources_for_empty(self):
-        """Tests that the ApiController object gets instantiated
-        correctly and generates the right values."""
-        self.assertNotEqual(TEST_OBJECT.resources, {})
+    def test_url(self):
+        """Tests that the resource url inside ApiController
+        object is generated correctly"""
+        real_url = "/".join(("https://pokeapi.co/api/v2",
+                             "pokemon",
+                             TEST_POKEMON))
+        self.assertEqual(TEST_OBJECT.url, real_url)
 
     # --- Test API calls ---
     def test_endpoint_validity(self):
