@@ -5,6 +5,29 @@ call the api module and connect with the PokeAPI endpoint.
 By utilizing these wrapper functions, classes, and values,
 use of the PokeAPI becomes abstracted away behind convenient,
 user-friendly function calls instead.
+
+Create a new Pokemon object with just the Pokemon name or ID:
+>>> poke = Pokemon("gengar")
+>>> print(poke)
+"gengar"
+
+Then access its data using dictionary keys from .contents:
+>>> poke.contents["types"]
+"types": [
+    {
+        "slot": 1,
+        "type": {
+            "name": "ghost",
+            "url": "https://pokeapi.co/api/v2/type/8/"
+        }
+    },
+    {
+        "slot": 2,
+        "type": {
+            "name": "poison",
+            "url": "https://pokeapi.co/api/v2/type/4/"
+        }
+    }
 """
 
 import api
@@ -20,39 +43,16 @@ class Pokemon:
         APIController container class with the information
         retrieved from the API or cache
         """
-        self.contents = api.ApiController(
+        self._api_data = api.ApiController(
             endpoint=api.API_URI_STUB,
             resource_type="pokemon",
             name_or_id=name_or_id
         )
 
-        self.dict = self._build_dict()
-
-        self.abilities = self.dict.get("abilities", {})
-        self.base_exp = self.dict.get("base_experience", {})
-        self.encounters = self.dict.get("location_area_encounters", {})
-        self.forms = self.dict.get("forms", {})
-        self.game_indices = self.dict.get("game_indices", {})
-        self.height = self.dict.get("height", {})
-        self.held_items = self.dict.get("held_items", {})
-
-        self.id = self.contents.id
-
-        self.is_default = self.dict.get("is_default", {})
-        self.moves = self.dict.get("moves", {})
-
-        self.name = self.contents.name
-
-        self.order = self.dict.get("order", {})
-        self.past_types = self.dict.get("past_types", {})
-        self.species = self.dict.get("species", {})
-        self.sprites = self.dict.get("sprites", {})
-        self.stats = self.dict.get("stats", {})
-        self.types = self.dict.get("types", {})
-
-        self.url = self.contents.url
-
-        self.weight = self.dict.get("weight", {})
+        self.contents = self._build_dict()
+        self.id = self._api_data.id
+        self.name = self._api_data.name
+        self.url = self._api_data.url
 
     def __str__(self):
         """The string representation of the object"""
@@ -67,9 +67,9 @@ class Pokemon:
         the nested dict structure returned from the API call
         """
         # TODO make this less hacky
-        big_key = [key for key in self.contents.resources.keys()][0]
-        new_dict = {key: self.contents.resources[big_key][key]
-                    for key in self.contents.resources[big_key].keys()}
+        big_key = [key for key in self._api_data.resources.keys()][0]
+        new_dict = {key: self._api_data.resources[big_key][key]
+                    for key in self._api_data.resources[big_key].keys()}
 
         return new_dict
 
