@@ -30,6 +30,7 @@ Then access its data using dictionary keys from .contents:
     }
 """
 
+from pprint import pprint
 import api
 
 
@@ -66,13 +67,23 @@ class Pokemon:
         """Returns a dictionary object from further inside
         the nested dict structure returned from the API call
         """
-        # TODO make this less hacky
-        big_key = [key for key in self._api_data.resources.keys()][0]
-        new_dict = {key: self._api_data.resources[big_key][key]
-                    for key in self._api_data.resources[big_key].keys()}
+        # Specifically needs to be an indexable list (keys object is not)
+        all_keys = [key for key in self._api_data.resources.keys()]
+
+        if len(all_keys) == 1:
+            big_key = all_keys[0]
+            new_dict = {key: self._api_data.resources[big_key][key]
+                        for key in self._api_data.resources[big_key].keys()}
+        else:
+            new_dict = {}
+            for big_key in all_keys:
+                t_dict = {key: self._api_data.resources[big_key][key]
+                          for key in self._api_data.resources[big_key].keys()}
+                new_dict[big_key] = t_dict
 
         return new_dict
 
 
 if __name__ == "__main__":
     test = Pokemon("gengar")
+    pprint(test.contents)
