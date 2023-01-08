@@ -74,21 +74,21 @@ class ApiController:
     """An object that manages the connection between pokeapi
     (https://pokeapi.co/) and the running application."""
 
-    def __init__(self, endpoint, resource_type, name_or_id):
+    def __init__(self, resource_type, name_or_id):
         """Initializes the ApiController with default uri
         to enable HTTP requests to the API source."""
         self.resources = {}
         self.cache_path = self._build_cache_path()
 
-        self.endpoint = endpoint
+        self.endpoint = API_URI_STUB
 
         self.type = self._validate_type(resource_type)
 
-        self.name, self.id = self.convert_name_or_id(endpoint,
+        self.name, self.id = self.convert_name_or_id(self.endpoint,
                                                      resource_type,
                                                      name_or_id)
 
-        self.url = self._build_api_url(endpoint, resource_type, self.name)
+        self.url = self._build_api_url(self.endpoint, resource_type, self.name)
 
     def __repr__(self):
         return f"<{self.url} - {self.name}>"
@@ -271,10 +271,12 @@ class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user."""
 
-    def __init__(self, endpoint):
+    def __init__(self, resource_type):
         """Instantiates an ApiResourceList object containing
-        a list of possible resources at the given endpoint."""
-        self.endpoint = endpoint
+        a list of possible resources at the given
+        resource_type endpoint.
+        """
+        self.endpoint = "/".join((API_URI_STUB, resource_type))
         self.cache_path = self._build_cache_path()
 
         # Dictionary version of results for caching
@@ -295,7 +297,8 @@ class ApiResourceList():
 
     def _build_cache_path(self):
         """Finds the cwd, then builds the desired path to where
-        all cached resources should be saved."""
+        all cached resources should be saved.
+        """
         cache_dir = os.getcwd()
         api_cache = os.path.join(cache_dir, "cache.json")
 
@@ -379,12 +382,11 @@ class ApiResourceList():
 
 if __name__ == "__main__":
     # Quick demos if run as script instead of imported as module
-    tmp = ApiController(API_URI_STUB, "pokemon", "gengar")
+    tmp = ApiController("pokemon", "gengar")
     print(repr(tmp))
 
     tmp.get_data()
     print(repr(tmp))
 
-    new_endpoint = "/".join((API_URI_STUB, "pokemon"))
-    new_tmp = ApiResourceList(new_endpoint)
+    new_tmp = ApiResourceList("pokemon")
     print(new_tmp)
