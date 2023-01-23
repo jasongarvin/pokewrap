@@ -12,17 +12,15 @@ import sys
 import os
 import requests
 
-# Import pokewrap/api using paths to ensure directory is found
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_DIR = os.path.dirname(SCRIPT_DIR)
-sys.path.append(MODULE_DIR)
+# Import api_modules/api using paths to ensure directory is found
+sys.path.append(".")
 
-from pokewrap import api
+from modules import api
 
 # Set up a test instance of ApiController for use in testing
 TEST_NUM = 94
 TEST_POKEMON = "gengar"
-TEST_OBJECT = api.ApiController(api.API_URI_STUB, "pokemon", TEST_POKEMON)
+TEST_OBJECT = api.ApiController("pokemon", TEST_POKEMON)
 
 
 class TestApi(unittest.TestCase):

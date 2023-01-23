@@ -31,7 +31,8 @@ Then access its data using dictionary keys from .contents:
 """
 
 from pprint import pprint
-import api
+
+from api import ApiController
 
 
 class Pokemon:
@@ -44,8 +45,7 @@ class Pokemon:
         APIController container class with the information
         retrieved from the API or cache
         """
-        self._api_data = api.ApiController(
-            endpoint=api.API_URI_STUB,
+        self._api_data = ApiController(
             resource_type="pokemon",
             name_or_id=name_or_id
         )
@@ -56,19 +56,17 @@ class Pokemon:
         self.url = self._api_data.url
 
     def __str__(self):
-        """The string representation of the object"""
         return f"{self.contents.name}"
 
     def __repr__(self):
-        """Developer representation of the object"""
         return f"<{self.name} #{self.id} at {self.url}>"
 
     def _build_dict(self):
         """Returns a dictionary object from further inside
-        the nested dict structure returned from the API call
+        the nested dict structure returned from the API call.
         """
         # Specifically needs to be an indexable list (keys object is not)
-        all_keys = [key for key in self._api_data.resources.keys()]
+        all_keys = [key for key in self._api_data.resources]
 
         if len(all_keys) == 1:
             big_key = all_keys[0]

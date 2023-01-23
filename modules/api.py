@@ -72,11 +72,12 @@ RESOURCE_TYPE = (
 
 class ApiController:
     """An object that manages the connection between pokeapi
-    (https://pokeapi.co/) and the running application."""
-
+    (https://pokeapi.co/) and the running application.
+    """
     def __init__(self, resource_type, name_or_id):
         """Initializes the ApiController with default uri
-        to enable HTTP requests to the API source."""
+        to enable HTTP requests to the API source.
+        """
         self.resources = {}
         self.cache_path = self._build_cache_path()
 
@@ -97,12 +98,13 @@ class ApiController:
         return f"{self.name}"
 
     def _build_api_url(self, endpoint, resource_type, name_or_id):
-        """Defines the full URL for the HTTP request"""
+        """Defines the full URL for the HTTP request."""
         return "/".join((endpoint, resource_type, name_or_id))
 
     def _build_cache_path(self):
         """Finds the cwd, then builds the desired path to where
-        all cached resources should be saved."""
+        all cached resources should be saved.
+        """
         cache_dir = os.getcwd()
         api_cache = os.path.join(cache_dir, "cache.json")
 
@@ -110,7 +112,8 @@ class ApiController:
 
     def _convert_id_to_name(self, endpoint, resource_type, id_):
         """Takes the endpoint and the resource id, then
-        returns the resource name as a str"""
+        returns the resource name as a str.
+        """
         url = self._build_api_url(endpoint, resource_type, id_)
         resource_data = self.get_data(url)
 
@@ -118,7 +121,8 @@ class ApiController:
 
     def _convert_name_to_id(self, endpoint, resource_type, name):
         """Takes the endpoint and the resource name, then
-        returns the resource id as an int"""
+        returns the resource id as an int.
+        """
         url = self._build_api_url(endpoint, resource_type, name)
         resource_data = self.get_data(url)
 
@@ -128,7 +132,8 @@ class ApiController:
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
-        Retrieved data gets saved to self.resources as dict with url as key."""
+        Retrieved data gets saved to self.resources as dict with url as key.
+        """
         if url is None:
             url = self.url
         try:
@@ -150,7 +155,8 @@ class ApiController:
 
     def _validate_type(self, resource_type):
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
-        Raises error if endpoint not in the list of valid resource types"""
+        Raises error if endpoint not in the list of valid resource types.
+        """
         if resource_type not in RESOURCE_TYPE:
             raise ValueError(f"Unknown API endpoint '{resource_type}'")
 
@@ -159,7 +165,8 @@ class ApiController:
     def cache_load(self):
         """Loads the given data from the cache, if applicable.
         Handles errors that could be thrown based on the possible
-        states the cache can exist in (doesn't exist, open, etc.)"""
+        states the cache can exist in (doesn't exist, open, etc.).
+        """
         file_data = {}
 
         try:
@@ -178,7 +185,8 @@ class ApiController:
 
     def cache_save(self):
         """Saves all held information into the cache if an identical
-        cache entry doesn't already exist."""
+        cache entry doesn't already exist.
+        """
         file_data = self.cache_load()
 
         try:
@@ -200,7 +208,8 @@ class ApiController:
         """Converts a name to an ID or an ID to a name,
         depending on type.
 
-        Assumes ID is int and name is str."""
+        Assumes ID is int and name is str.
+        """
         if isinstance(name_or_id, int):
             id_ = name_or_id
             name = self._convert_id_to_name(endpoint, resource_type, id_)
@@ -218,7 +227,8 @@ class ApiController:
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
-        Retrieved data gets saved to self.resources as dict with url as key."""
+        Retrieved data gets saved to self.resources as dict with url as key.
+        """
         if url is None:
             url = self.url
 
@@ -242,7 +252,8 @@ class ApiController:
 
         Ensure the cache is changed BEFORE any work is done using the library,
         if at all. Otherwise errors will arise in discovering the
-        cache directory during runtime."""
+        cache directory during runtime.
+        """
         if new_cache_path is None:
             new_cache_path = self._build_cache_path()
 
@@ -256,7 +267,8 @@ class ApiController:
         """Create a leaf directory and all intermediate directories safely.
         Takes a path as either a relative or absolute directory tree
         to create new directories. Mode sets the directory permissions
-        in octal"""
+        in octal.
+        """
         try:
             os.makedirs(path, mode)
         except OSError as error:
@@ -269,8 +281,8 @@ class ApiController:
 
 class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
-    in order to catalog resources available to the user."""
-
+    in order to catalog resources available to the user.
+    """
     def __init__(self, resource_type):
         """Instantiates an ApiResourceList object containing
         a list of possible resources at the given
@@ -308,7 +320,8 @@ class ApiResourceList():
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
-        Retrieved data gets saved to self.resources as dict with url as key."""
+        Retrieved data gets saved to self.resources as dict with url as key.
+        """
         try:
             response = requests.get(self.endpoint, timeout=timeout)
             response.raise_for_status()
@@ -328,7 +341,8 @@ class ApiResourceList():
     def cache_load(self):
         """Loads the given data from the cache, if applicable.
         Handles errors that could be thrown based on the possible
-        states the cache can exist in (doesn't exist, open, etc.)"""
+        states the cache can exist in (doesn't exist, open, etc.).
+        """
         file_data = {}
 
         try:
@@ -347,13 +361,15 @@ class ApiResourceList():
 
     def cache_save(self):
         """Saves all held information into the cache if an identical
-        cache entry doesn't already exist."""
+        cache entry doesn't already exist.
+        """
+        if self.response is None or self.endpoint is None:
+            return
+
         file_data = self.cache_load()
 
         try:
-            if (self.response is not None and
-                self.endpoint not in file_data.keys()):
-                file_data[self.endpoint] = self.response
+            file_data[self.endpoint] = self.response
 
             with open(self.cache_path, "w", encoding="utf-8") as file:
                 file.seek(0)
@@ -369,7 +385,8 @@ class ApiResourceList():
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
-        Retrieved data gets saved to self.resources as dict with url as key."""
+        Retrieved data gets saved to self.resources as dict with url as key.
+        """
         data = self.cache_load()
 
         if self.endpoint in data.keys():

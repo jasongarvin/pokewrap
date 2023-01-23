@@ -1,7 +1,7 @@
 # Contributing
 ---
 
-Contributions are welcome, and appreciated! Credit will be given to anyone who helps with the project, whether that's code additions, refactoring, bugfixing, or otherwise.
+Contributions are welcome and appreciated! Credit will be given to anyone who helps with the project, whether that's code additions, refactoring, bugfixing, or otherwise.
 
 Here are ways you can contribute:
 
