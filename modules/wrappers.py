@@ -11,8 +11,8 @@ Create a new Pokemon object with just the Pokemon name or ID:
 >>> print(poke)
 "gengar"
 
-Then access its data using dictionary keys from .contents:
->>> poke.contents["types"]
+Then access its data using dictionary keys from .content:
+>>> poke.content["types"]
 "types": [
     {
         "slot": 1,
@@ -50,13 +50,13 @@ class Pokemon:
             name_or_id=name_or_id
         )
 
-        self.contents = self._build_dict()
+        self.content = self._build_dict()
         self.id = self._api_data.id
         self.name = self._api_data.name
         self.url = self._api_data.url
 
     def __str__(self):
-        return f"{self.contents.name}"
+        return f"{self.content.name}"
 
     def __repr__(self):
         return f"<{self.name} #{self.id} at {self.url}>"
@@ -84,4 +84,4 @@ class Pokemon:
 
 if __name__ == "__main__":
     test = Pokemon("gengar")
-    pprint(test.contents)
+    pprint(test.content)

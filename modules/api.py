@@ -18,6 +18,8 @@ import requests
 
 
 API_URI_STUB = "https://pokeapi.co/api/v2"
+
+# Sets a default resource list in case the resource lookup fails
 RESOURCE_TYPE = (
     "ability",
     "berry",
@@ -68,6 +70,25 @@ RESOURCE_TYPE = (
     "version",
     "version-group",
 )
+
+# Set the RESOURCE_TYPE dictionary to be accurate from PokeAPI's categories
+# TODO Implement NEW_RESOURCES in the API classes
+try:
+    response = requests.get((API_URI_STUB + "/"), timeout=10)
+    response.raise_for_status()
+
+    NEW_RESOURCES = {API_URI_STUB: response.json()}
+except requests.exceptions.HTTPError as errh:
+    print(errh)
+except requests.exceptions.ConnectionError as errc:
+    print(errc)
+except requests.exceptions.Timeout as errt:
+    print(errt)
+except requests.exceptions.RequestException as err:
+    print(err)
+finally:
+    if not NEW_RESOURCES:
+        NEW_RESOURCES = RESOURCE_TYPE
 
 
 class ApiController:

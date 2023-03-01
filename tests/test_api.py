@@ -33,14 +33,14 @@ class TestApi(unittest.TestCase):
         self.assertEqual(api_uri, "https://pokeapi.co/api/v2")
 
     # --- Test instantiation of ApiController objects ---
-    def test_cache_path(self):
+    def test_correct_cache_path(self):
         """Tests that cache path loaded correctly
         into ApiController object"""
         cwd = os.getcwd()
         cache_path = os.path.join(cwd, "cache.json")
         self.assertEqual(TEST_OBJECT.cache_path, cache_path)
 
-    def test_id(self):
+    def test_id_exists(self):
         """Tests if id value is generated correctly in ApiController
 
         Also confirms that _convert_id_to_name and
@@ -53,7 +53,7 @@ class TestApi(unittest.TestCase):
         correctly and generates the right values."""
         self.assertNotEqual(TEST_OBJECT.resources, {})
 
-    def test_name(self):
+    def test_name_exists(self):
         """Tests if name value is generated correctly in ApiController
 
         Also confirms that _convert_id_to_name and
@@ -61,14 +61,16 @@ class TestApi(unittest.TestCase):
         """
         self.assertEqual(TEST_OBJECT.name, TEST_POKEMON)
 
-    def test_object_type(self):
+    def test_object_type_matches(self):
         """Tests that the type of resource brought into ApiController
-        exists inside RESOURCE_TYPE tuple."""
+        exists inside RESOURCE_TYPE tuple.
+        """
         self.assertIn(TEST_OBJECT.type, api.RESOURCE_TYPE)
 
     def test_url(self):
         """Tests that the resource url inside ApiController
-        object is generated correctly"""
+        object is generated correctly
+        """
         real_url = "/".join(("https://pokeapi.co/api/v2",
                              "pokemon",
                              TEST_POKEMON))
