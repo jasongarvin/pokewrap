@@ -187,7 +187,7 @@ class ApiController:
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
         Raises error if endpoint not in the list of valid resource types.
         """
-        if resource not in RESOURCE_ENDPOINTS:
+        if RESOURCE_ENDPOINTS[API_URI_STUB].get(resource) is None:
             raise ValueError(f"Unknown API endpoint '{resource}'")
 
         return resource
