@@ -1,8 +1,11 @@
 # Installation
 
-At the command line:
-```bash
-$ pip install pokewrap
-```
+Simply [download the source code](https://github.com/jasongarvin/pokewrap) from GitHub and put the package in your project directory, or fork it and work on it from there in your own repository.
 
-Or [download the source code](https://github.com/jasongarvin/pokewrap) from GitHub and simply put the package in your project directory.
+## Coming Soon
+
+At the command line:
+
+```bash
+$pip install pokewrap
+```

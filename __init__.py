@@ -12,5 +12,5 @@ __author__ = "Jason Garvin"
 __email__ = "jasonagarvin@gmail.com"
 __credits__ = ["Jason Garvin"]
 __version__ = "0.1.0"
-__copyright__ = "Copyright Jason Garvin 2022"
+__copyright__ = "Copyright Jason Garvin 2023"
 __license__ = "MIT"
