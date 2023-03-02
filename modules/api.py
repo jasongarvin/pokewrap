@@ -20,7 +20,7 @@ import requests
 API_URI_STUB = "https://pokeapi.co/api/v2"
 
 # Sets a default resource list in case the resource lookup fails
-RESOURCE_TYPE = (
+RESOURCE_TYPES = (
     "ability",
     "berry",
     "berry-firmness",
@@ -71,13 +71,13 @@ RESOURCE_TYPE = (
     "version-group",
 )
 
-# Set the RESOURCE_TYPE dictionary to be accurate from PokeAPI's categories
+# Set the RESOURCE_TYPES dictionary to be accurate from PokeAPI's categories
 # TODO Implement NEW_RESOURCES in the API classes
 try:
     response = requests.get((API_URI_STUB + "/"), timeout=10)
     response.raise_for_status()
 
-    NEW_RESOURCES = {API_URI_STUB: response.json()}
+    RESOURCE_ENDPOINTS = {API_URI_STUB: response.json()}
 except requests.exceptions.HTTPError as errh:
     print(errh)
 except requests.exceptions.ConnectionError as errc:
@@ -87,30 +87,39 @@ except requests.exceptions.Timeout as errt:
 except requests.exceptions.RequestException as err:
     print(err)
 finally:
-    if not NEW_RESOURCES:
-        NEW_RESOURCES = RESOURCE_TYPE
+    if len(RESOURCE_ENDPOINTS) == 0:
+        RESOURCE_ENDPOINTS = RESOURCE_TYPES
 
 
 class ApiController:
-    """An object that manages the connection between pokeapi
+    """An object that manages the connection between PokeAPI
     (https://pokeapi.co/) and the running application.
     """
-    def __init__(self, resource_type, name_or_id):
+    def __init__(self, resource, name_or_id):
         """Initializes the ApiController with default uri
         to enable HTTP requests to the API source.
+
+        Takes a resource (the values contained in RESOURCE_TYPES),
+        for example 'pokemon' and the name or id of the desired item.
+
+        To retrieve content on a specific pokemon, for instance,
+        use resource='pokemon' and name_or_id='gengar' for name,
+        or name_or_id=94 for pokemon ID number.
         """
-        self.resources = {}
+        self.content_dict = {}
         self.cache_path = self._build_cache_path()
 
         self.endpoint = API_URI_STUB
 
-        self.type = self._validate_type(resource_type)
+        self.resource = self._validate_resource(resource)
 
         self.name, self.id = self.convert_name_or_id(self.endpoint,
-                                                     resource_type,
+                                                     self.resource,
                                                      name_or_id)
 
-        self.url = self._build_api_url(self.endpoint, resource_type, self.name)
+        self.url = self._build_api_url(self.endpoint,
+                                       self.resource,
+                                       self.name)
 
     def __repr__(self):
         return f"<{self.url} - {self.name}>"
@@ -118,9 +127,9 @@ class ApiController:
     def __str__(self):
         return f"{self.name}"
 
-    def _build_api_url(self, endpoint, resource_type, name_or_id):
+    def _build_api_url(self, endpoint, resource, name_or_id):
         """Defines the full URL for the HTTP request."""
-        return "/".join((endpoint, resource_type, name_or_id))
+        return "/".join((endpoint, resource, name_or_id))
 
     def _build_cache_path(self):
         """Finds the cwd, then builds the desired path to where
@@ -131,20 +140,20 @@ class ApiController:
 
         return api_cache
 
-    def _convert_id_to_name(self, endpoint, resource_type, id_):
+    def _convert_id_to_name(self, endpoint, resource, id_):
         """Takes the endpoint and the resource id, then
         returns the resource name as a str.
         """
-        url = self._build_api_url(endpoint, resource_type, id_)
+        url = self._build_api_url(endpoint, resource, id_)
         resource_data = self.get_data(url)
 
         return resource_data[url].get("name", str(id_))
 
-    def _convert_name_to_id(self, endpoint, resource_type, name):
+    def _convert_name_to_id(self, endpoint, resource, name):
         """Takes the endpoint and the resource name, then
         returns the resource id as an int.
         """
-        url = self._build_api_url(endpoint, resource_type, name)
+        url = self._build_api_url(endpoint, resource, name)
         resource_data = self.get_data(url)
 
         return resource_data[url].get("id")
@@ -153,7 +162,7 @@ class ApiController:
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
-        Retrieved data gets saved to self.resources as dict with url as key.
+        Retrieved data gets saved to self.content_dict with url as key.
         """
         if url is None:
             url = self.url
@@ -161,7 +170,7 @@ class ApiController:
             response = requests.get(url, timeout=timeout)
             response.raise_for_status()
 
-            self.resources[url] = response.json()
+            self.content_dict[url] = response.json()
             return {url: response.json()}
         except requests.exceptions.HTTPError as errh:
             print(errh)
@@ -174,14 +183,14 @@ class ApiController:
 
         return {url: None}
 
-    def _validate_type(self, resource_type):
+    def _validate_resource(self, resource):
         """Checks if the endpoint is a valid API endpoint within PokeAPI.
         Raises error if endpoint not in the list of valid resource types.
         """
-        if resource_type not in RESOURCE_TYPE:
-            raise ValueError(f"Unknown API endpoint '{resource_type}'")
+        if resource not in RESOURCE_ENDPOINTS:
+            raise ValueError(f"Unknown API endpoint '{resource}'")
 
-        return resource_type
+        return resource
 
     def cache_load(self):
         """Loads the given data from the cache, if applicable.
@@ -211,7 +220,7 @@ class ApiController:
         file_data = self.cache_load()
 
         try:
-            for (key, value) in self.resources.items():
+            for (key, value) in self.content_dict.items():
                 if value is not None and key not in file_data.keys():
                     file_data[key] = value
 
@@ -225,7 +234,7 @@ class ApiController:
             else:
                 raise
 
-    def convert_name_or_id(self, endpoint, resource_type, name_or_id):
+    def convert_name_or_id(self, endpoint, resource, name_or_id):
         """Converts a name to an ID or an ID to a name,
         depending on type.
 
@@ -233,11 +242,11 @@ class ApiController:
         """
         if isinstance(name_or_id, int):
             id_ = name_or_id
-            name = self._convert_id_to_name(endpoint, resource_type, id_)
+            name = self._convert_id_to_name(endpoint, resource, id_)
 
         elif isinstance(name_or_id, str):
             name = name_or_id
-            id_ = self._convert_name_to_id(endpoint, resource_type, name)
+            id_ = self._convert_name_to_id(endpoint, resource, name)
 
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")
@@ -248,7 +257,7 @@ class ApiController:
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
-        Retrieved data gets saved to self.resources as dict with url as key.
+        Retrieved data gets saved to self.content_dict with url as key.
         """
         if url is None:
             url = self.url
@@ -256,7 +265,7 @@ class ApiController:
         data = self.cache_load()
 
         if url in data.keys():
-            self.resources[url] = data[url]
+            self.content_dict[url] = data[url]
             return {url: data[url]}
 
         data = self._get_resource(url)
@@ -304,12 +313,11 @@ class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user.
     """
-    def __init__(self, resource_type):
+    def __init__(self, resource):
         """Instantiates an ApiResourceList object containing
-        a list of possible resources at the given
-        resource_type endpoint.
+        a list of possible resources at the given resource endpoint.
         """
-        self.endpoint = "/".join((API_URI_STUB, resource_type))
+        self.endpoint = "/".join((API_URI_STUB, resource))
         self.cache_path = self._build_cache_path()
 
         # Dictionary version of results for caching
@@ -341,7 +349,7 @@ class ApiResourceList():
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
-        Retrieved data gets saved to self.resources as dict with url as key.
+        Retrieved data gets saved to self.content_dict as dict with url as key.
         """
         try:
             response = requests.get(self.endpoint, timeout=timeout)
@@ -406,7 +414,7 @@ class ApiResourceList():
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
-        Retrieved data gets saved to self.resources as dict with url as key.
+        Retrieved data gets saved to self.content_dict as dict with url as key.
         """
         data = self.cache_load()
 

@@ -40,6 +40,15 @@ class TestApi(unittest.TestCase):
         cache_path = os.path.join(cwd, "cache.json")
         self.assertEqual(TEST_OBJECT.cache_path, cache_path)
 
+    def test_correct_url(self):
+        """Tests that the resource url inside ApiController
+        object is generated correctly
+        """
+        real_url = "/".join(("https://pokeapi.co/api/v2",
+                             "pokemon",
+                             TEST_POKEMON))
+        self.assertEqual(TEST_OBJECT.url, real_url)
+
     def test_id_exists(self):
         """Tests if id value is generated correctly in ApiController
 
@@ -66,15 +75,6 @@ class TestApi(unittest.TestCase):
         exists inside RESOURCE_TYPE tuple.
         """
         self.assertIn(TEST_OBJECT.type, api.RESOURCE_TYPE)
-
-    def test_url(self):
-        """Tests that the resource url inside ApiController
-        object is generated correctly
-        """
-        real_url = "/".join(("https://pokeapi.co/api/v2",
-                             "pokemon",
-                             TEST_POKEMON))
-        self.assertEqual(TEST_OBJECT.url, real_url)
 
     # --- Test API calls ---
     def test_endpoint_validity(self):
