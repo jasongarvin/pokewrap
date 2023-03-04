@@ -31,7 +31,6 @@ Then access its data using dictionary keys from .content:
 """
 
 from pprint import pprint
-
 from api import ApiController
 
 
@@ -43,17 +42,18 @@ class Pokemon:
     def __init__(self, name_or_id):
         """Instantiates a new Pokemon class containing an
         APIController container class with the information
-        retrieved from the API or cache
+        retrieved from the API or cache.
         """
         self._api_data = ApiController(
-            resource_type="pokemon",
+            resource="pokemon",
             name_or_id=name_or_id
         )
 
-        self.content = self._build_dict()
         self.id = self._api_data.id
         self.name = self._api_data.name
         self.url = self._api_data.url
+
+        self.content = self._build_dict()
 
     def __str__(self):
         return f"{self.content.name}"
@@ -66,22 +66,15 @@ class Pokemon:
         the nested dict structure returned from the API call.
         """
         # Specifically needs to be an indexable list (keys object is not)
-        all_keys = [key for key in self._api_data.resources]
+        content_keys = [key for key in self._api_data.content_dict]
 
-        if len(all_keys) == 1:
-            big_key = all_keys[0]
-            new_dict = {key: self._api_data.resources[big_key][key]
-                        for key in self._api_data.resources[big_key].keys()}
-        else:
-            new_dict = {}
-            for big_key in all_keys:
-                t_dict = {key: self._api_data.resources[big_key][key]
-                          for key in self._api_data.resources[big_key].keys()}
-                new_dict[big_key] = t_dict
+        uri_key = content_keys[0]
+        api_content = {key: self._api_data.content_dict[uri_key][key]
+                       for key in self._api_data.content_dict[uri_key].keys()}
 
-        return new_dict
+        return api_content
 
 
 if __name__ == "__main__":
-    test = Pokemon("gengar")
-    pprint(test.content)
+    test_pokemon = Pokemon("gengar")
+    pprint(test_pokemon.content.get("name", None))

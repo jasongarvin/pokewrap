@@ -72,7 +72,7 @@ RESOURCE_TYPES = (
 )
 
 # Set the RESOURCE_TYPES dictionary to be accurate from PokeAPI's categories
-# TODO Implement NEW_RESOURCES in the API classes
+RESOURCE_ENDPOINTS = {}
 try:
     response = requests.get((API_URI_STUB + "/"), timeout=10)
     response.raise_for_status()
@@ -167,19 +167,19 @@ class ApiController:
         if url is None:
             url = self.url
         try:
-            response = requests.get(url, timeout=timeout)
+            api_response = requests.get(url, timeout=timeout)
             response.raise_for_status()
 
-            self.content_dict[url] = response.json()
-            return {url: response.json()}
-        except requests.exceptions.HTTPError as errh:
-            print(errh)
-        except requests.exceptions.ConnectionError as errc:
-            print(errc)
-        except requests.exceptions.Timeout as errt:
-            print(errt)
-        except requests.exceptions.RequestException as err:
-            print(err)
+            self.content_dict[url] = api_response.json()
+            return {url: api_response.json()}
+        except requests.exceptions.HTTPError as error_h:
+            print(error_h)
+        except requests.exceptions.ConnectionError as error_c:
+            print(error_c)
+        except requests.exceptions.Timeout as error_t:
+            print(error_t)
+        except requests.exceptions.RequestException as error:
+            print(error)
 
         return {url: None}
 
@@ -352,18 +352,18 @@ class ApiResourceList():
         Retrieved data gets saved to self.content_dict as dict with url as key.
         """
         try:
-            response = requests.get(self.endpoint, timeout=timeout)
+            api_response = requests.get(self.endpoint, timeout=timeout)
             response.raise_for_status()
 
-            return response.json()
-        except requests.exceptions.HTTPError as errh:
-            print(errh)
-        except requests.exceptions.ConnectionError as errc:
-            print(errc)
-        except requests.exceptions.Timeout as errt:
-            print(errt)
-        except requests.exceptions.RequestException as err:
-            print(err)
+            return api_response.json()
+        except requests.exceptions.HTTPError as error_h:
+            print(error_h)
+        except requests.exceptions.ConnectionError as error_c:
+            print(error_c)
+        except requests.exceptions.Timeout as error_t:
+            print(error_t)
+        except requests.exceptions.RequestException as error:
+            print(error)
 
         return {}
 
