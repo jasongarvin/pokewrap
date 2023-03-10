@@ -12,7 +12,7 @@ Create a new Pokemon object with just the Pokemon name or ID:
 "gengar"
 
 Then access its data using dictionary keys from .content:
->>> poke.content["types"]
+>>> poke.data["types"]
 "types": [
     {
         "slot": 1,
@@ -30,7 +30,6 @@ Then access its data using dictionary keys from .content:
     }
 """
 
-from pprint import pprint
 from api import ApiController
 
 
@@ -53,10 +52,10 @@ class Pokemon:
         self.name = self._api_data.name
         self.url = self._api_data.url
 
-        self.content = self._build_dict()
+        self.data = self._build_dict()
 
     def __str__(self):
-        return f"{self.content.name}"
+        return f"{self.data.name}"
 
     def __repr__(self):
         return f"<{self.name} #{self.id} at {self.url}>"
@@ -77,4 +76,4 @@ class Pokemon:
 
 if __name__ == "__main__":
     test_pokemon = Pokemon("gengar")
-    pprint(test_pokemon.content.get("name", None))
+    print(test_pokemon.data.get("name", None))
