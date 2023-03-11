@@ -30,7 +30,7 @@ Then access its data using dictionary keys from .content:
     }
 """
 
-from api import ApiController
+from .api import ApiController
 
 
 class Pokemon:
@@ -55,7 +55,7 @@ class Pokemon:
         self.data = self._build_dict()
 
     def __str__(self):
-        return f"{self.data.name}"
+        return f"{self.name}"
 
     def __repr__(self):
         return f"<{self.name} #{self.id} at {self.url}>"
@@ -72,8 +72,3 @@ class Pokemon:
                        for key in self._api_data.content_dict[uri_key].keys()}
 
         return api_content
-
-
-if __name__ == "__main__":
-    test_pokemon = Pokemon("gengar")
-    print(test_pokemon.data.get("name", None))

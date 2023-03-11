@@ -16,7 +16,7 @@ import requests
 # Import api_modules/api using paths to ensure directory is found
 sys.path.append(".")
 
-from pokewrap import api
+import pokewrap as api
 
 # Set up a test instance of ApiController for use in testing
 TEST_NUM = 94

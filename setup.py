@@ -3,22 +3,19 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.1.0'
-PACKAGE_NAME = 'pokewrap'
-AUTHOR = 'Jason Garvin'
-AUTHOR_EMAIL = 'jsongarvin@gmail.com'
-URL = 'https://github.com/jasongarvin/pokewrap'
+VERSION = "0.0.3"
+PACKAGE_NAME = "pokewrap"
+AUTHOR = "Jason Garvin"
+AUTHOR_EMAIL = "jsongarvin@gmail.com"
+URL = "https://github.com/jasongarvin/pokewrap"
 
-LICENSE = 'MIT License'
-DESCRIPTION = 'A wrapper library for the PokeAPI making it easier to retrieve and use data from the API endpoint.'
+LICENSE = "MIT License"
+DESCRIPTION = """A wrapper library for the PokeAPI making it easier
+                 to retrieve and use data from the API endpoint."""
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = [
-    'json',
-    'os',
-    'requests'
-]
+INSTALL_REQUIRES = []
 
 setup(name=PACKAGE_NAME,
       version=VERSION,

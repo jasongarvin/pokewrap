@@ -144,7 +144,7 @@ class ApiController:
         """Takes the endpoint and the resource id, then
         returns the resource name as a str.
         """
-        url = self._build_api_url(endpoint, resource, id_)
+        url = self._build_api_url(endpoint, resource, str(id_))
         resource_data = self.get_data(url)
 
         return resource_data[url].get("name", str(id_))
@@ -238,16 +238,23 @@ class ApiController:
         """Converts a name to an ID or an ID to a name,
         depending on type.
 
-        Assumes ID is int and name is str.
+        Assumes ID is int and name is str, but if an int
+        is passed as a str it will try to convert to int
+        before proceeding
         """
-        if isinstance(name_or_id, int):
+        try:
+            name_or_id = int(name_or_id)
+        except ValueError:
+            pass
+        finally:
+            is_type_str = isinstance(name_or_id, str)
+
+        if not is_type_str:
             id_ = name_or_id
             name = self._convert_id_to_name(endpoint, resource, id_)
-
-        elif isinstance(name_or_id, str):
+        elif is_type_str:
             name = name_or_id
             id_ = self._convert_name_to_id(endpoint, resource, name)
-
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")
 
@@ -430,6 +437,8 @@ if __name__ == "__main__":
     # Quick demos if run as script instead of imported as module
     tmp = ApiController("pokemon", "gengar")
     print(repr(tmp))
+
+    print(f"id: {tmp.id}, name: {tmp.name}")
 
     tmp.get_data()
     print(repr(tmp))
