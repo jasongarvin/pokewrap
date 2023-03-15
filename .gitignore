@@ -6,8 +6,8 @@ __pycache__/
 # Local cache
 cache.json
 
-# Local files in project directory for experimentation
-pokewrap/scraps.py
+# The automatic deployment shell script
+build_deploy.sh
 
 # C extensions
 *.so

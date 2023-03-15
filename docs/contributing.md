@@ -16,11 +16,11 @@ When reporting a bug, please include:
 
 ## Fixing Bugs
 
-Any open items tagged as bugs in [TODO: Create Issues Page] are open to anyone seeking to fix them.
+Any open items tagged as bugs in the [issues](https://github.com/jasongarvin/pokewrap/issues) page are open to anyone seeking to fix them.
 
 ## Implementing Features
 
-When proposing a feature, please explain in detail how it would work and keep the scope as narrow as possible to ensure ease of implementation.
+When proposing a feature, please explain in detail how it would work and keep the scope as narrow as possible to ensure it's relatively easy to implement.
 
 Anyone is more than welcome to contribute a feature via pull request, which will be reviewed and approved if it's a good fit and works properly.
 

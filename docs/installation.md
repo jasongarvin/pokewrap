@@ -4,6 +4,8 @@ Simply [download the source code](https://github.com/jasongarvin/pokewrap) from 
 
 ## Coming Soon
 
+PyPi implementation and release will be coming soon. When it's live, this page will be updated and you'll be able to install it using pip.
+
 At the command line:
 
 ```bash
