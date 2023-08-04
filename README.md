@@ -55,8 +55,10 @@ For a conprehensive list of all available resource types, check the static RESOU
 
 ## Coming Soon
 
-As mentioned above, the goal is to eventually support custom limit and offset values in your http requests. I'll also continue expanding the functionalities of this module as the need arises (bug fixes as well, where applicable).
+* I'll be honest. I got incredibly busy with other projects, consulting, and business acquisition. This library was meant as a learning experience so I don't have immediate plans to update it in major ways. I fully intend to come back and clean up some edge cases, but haven't thus far.
+
+* Below you'll find the features I indend to add, but there is no longer a clear timeline.
+
+The goal is to eventually support custom limit and offset values in your http requests. I'll also continue expanding the functionalities of this module as the need arises (bug fixes as well, where applicable).
 
 pokewrap will also grow to include more comprehensive testing and data validation, to ensure no matter what your request and its context that Pokewrap still gives you the best result for your use case.
-
-Also, more wrapper classes! If using the Pokemon class proves to be a significant improvement in the developer experience, wrappers will be created for the remaining resource types.
