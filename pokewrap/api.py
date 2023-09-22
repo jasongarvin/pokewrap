@@ -12,6 +12,8 @@ please check out the __init__.py file or read the README in
 the outer directory.
 """
 
+# TODO add custom limit, offset fields to API queries
+
 import json
 import os
 import requests
