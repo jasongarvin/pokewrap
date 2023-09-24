@@ -320,15 +320,19 @@ class ApiResourceList():
     """An object that connects to pokeapi (https://pokeapi.co/)
     in order to catalog resources available to the user.
     """
-    def __init__(self, resource):
+    def __init__(self, resource, limit=None, offset=None):
         """Instantiates an ApiResourceList object containing
         a list of possible resources at the given resource endpoint.
+
+        Optionally allows for specification of a [limit] and [offset],
+        where limit sets the max number of items returned per page,
+        and offset sets the max number of pages queried
         """
         self.endpoint = "/".join((API_URI_STUB, resource))
         self.cache_path = self._build_cache_path()
 
         # Dictionary version of results for caching
-        self.response = self.get_data()
+        self.response = self.get_data(limit, offset)
         self.cache_save()
 
         self._results = [i for i in self.response["results"]]
@@ -352,14 +356,38 @@ class ApiResourceList():
 
         return api_cache
 
-    def _get_resource(self, timeout=10):
+    def _build_query_uri(self, limit, offset):
+        """In the case a get request includes a custom limit and/or offset,
+        a new URI gets built adding the query parameters to ensure
+        PokeAPI knows to return the correct amount of data
+
+        [limit] is an int representing the number of items you want to see
+        from a given page,
+        [offset] is an int representing the number of pages you'd like to
+        pull results from in the event they span past a single page
+        """
+        query_url = self.endpoint
+
+        if limit is not None:
+            query_url += f"/?limit={str(limit)}"
+            if offset is not None:
+                query_url += f"&offset={str(offset)}"
+        elif offset is not None:
+            query_url += f"/?offset={str(offset)}"
+        print(query_url)
+
+        return query_url
+
+    def _get_resource(self, limit, offset, timeout=10):
         """Sends a GET request to the API to receive the needed
         resource and saves it as a dict object before returning it.
 
         Retrieved data gets saved to self.content_dict as dict with url as key.
         """
+        query_url = self._build_query_uri(limit, offset)
+
         try:
-            api_response = requests.get(self.endpoint, timeout=timeout)
+            api_response = requests.get(query_url, timeout=timeout)
             response.raise_for_status()
 
             return api_response.json()
@@ -417,7 +445,7 @@ class ApiResourceList():
             else:
                 raise
 
-    def get_data(self):
+    def get_data(self, limit, offset, timeout=10):
         """Tries to retrieve data from the cache in case it already exists.
         Then calls _get_resource() to send GET request to API otherwise.
 
@@ -428,7 +456,7 @@ class ApiResourceList():
         if self.endpoint in data.keys():
             contents = data[self.endpoint]
         else:
-            contents = self._get_resource()
+            contents = self._get_resource(limit, offset, timeout)
 
         return contents
 
@@ -443,5 +471,5 @@ if __name__ == "__main__":
     tmp.get_data()
     print(repr(tmp))
 
-    new_tmp = ApiResourceList("pokemon")
+    new_tmp = ApiResourceList("pokemon", limit=100)
     print(new_tmp)

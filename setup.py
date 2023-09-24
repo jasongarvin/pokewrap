@@ -1,9 +1,15 @@
+"""
+Sets up the package for distribution.
+Links necessary files and attaches version information,
+package description, and author data.
+"""
+
 import pathlib
 from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = "0.0.3"
+VERSION = "1.0.0"
 PACKAGE_NAME = "pokewrap"
 AUTHOR = "Jason Garvin"
 AUTHOR_EMAIL = "jsongarvin@gmail.com"

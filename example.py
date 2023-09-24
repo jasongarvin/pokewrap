@@ -1,4 +1,5 @@
-"""A quick demo of basic implementation for the pokewrap package.
+"""
+A quick demo of basic implementation for the pokewrap package.
 
 Import pokewrap and create a new object, either by calling
 the Pokemon wrapper class if you want a Pokemon specifically,
@@ -17,18 +18,24 @@ import pokewrap
 
 if __name__ == "__main__":
     # How to use the wrapper library
+    # Get available endpoints for Pokemon
     available_resources = pokewrap.ApiResourceList("pokemon")
     print(available_resources)
 
-    # Create a new pokemon specifically for convenience
+    # Get resources with custom limit and/or offset
+    more_available_resources = pokewrap.ApiResourceList("pokemon",
+                                                        limit=100,
+                                                        offset=2)
+
+    # Create a new Pokemon object
     gengar = pokewrap.Pokemon("94")
 
     # Access the Pokemon name from its key in the .data dictionary
     print(gengar.data.get("name", None))
-    # Can also access name, id, and uri location in the object namespace
+    # You can also access name, id, and uri location in the object namespace
     print(gengar.name)
     print(gengar.id)
     print(gengar.url)
 
-    # When printed without specification, defaults to name
+    # When printed without specification, Pokemon objects default to name
     print(gengar)

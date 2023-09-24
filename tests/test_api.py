@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-"""A basic template to fill out with unit tests as I learn more about them.
+
+"""
+A basic template to fill out with unit tests as I learn more about them.
 
 Note that using unittest requires creating classes to run the tests
 by inheriting from unittest.TestCase and prefers using its own assert
 methods instead of the regular assert() call.
 """
-
-# TODO: Test the remaining elements of pokewrap besides variables
 
 import unittest
 import sys
@@ -82,7 +82,8 @@ class TestApi(unittest.TestCase):
 
     # --- Test API calls ---
     def test_endpoint_validity(self):
-        """All endpoints in RESOURCE_TYPES are valid and return 200 code
+        """Tests whether all endpoints in RESOURCE_TYPES
+        are valid and return 200 code
         """
         try:
             response = requests.get(api.API_URI_STUB, timeout=10)
