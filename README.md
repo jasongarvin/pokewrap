@@ -16,7 +16,7 @@ You can also use it Pokewrap to see which endpoints are available if you're unsu
 
 ## Getting Started
 
-* Coming soon the package will be available on PyPi, but there needs to be more written tests to ensure it's stable first. When that happens you'll be able to install with pip, but for now please clone or download the package from github itself.
+You can either import the library using pip, pulling from the PyPI database, or by downloading this repository. You can also clone/fork this repository to edit it in your own workspace.
 
 ---
 
@@ -58,6 +58,12 @@ For example, to see every Pokemon available through the endpoint:
 
 ```python
 ApiResourceList("pokemon")
+```
+
+Or use limit/offset values to improve the specificity of your query, overriding the default limits set by PokeAPI:
+
+```python
+ApiResourceList("pokemon", limit=100, offset=2)
 ```
 
 Note that the default limit is 20 for resource requests. For larger sets of data, please specify the limit in the function call.
