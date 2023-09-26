@@ -7,9 +7,9 @@ use of the PokeAPI becomes abstracted away behind convenient,
 user-friendly function calls instead.
 
 Create a new Pokemon object with just the Pokemon name or ID:
->>> poke = Pokemon("gengar")
->>> print(poke)
-"gengar"
+>>> new_pokemon = Pokemon("gengar")
+>>> print(new_pokemon)
+'gengar'
 
 Then access its data using dictionary keys from .content:
 >>> poke.data["types"]

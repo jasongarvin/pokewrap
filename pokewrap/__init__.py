@@ -6,14 +6,14 @@ A small Python wrapper for PokeAPI (https://pokeapi.co)
 
 Usage:
 >>> import pokewrap
->>> clientV2 = pokepy.V2Client()
->>> clientV2.get_pokemon('bulbasaur')
-<Pokemon - Bulbasaur>
+>>> new_pokemon = pokewrap.ApiController("gengar")
+>>> new_pokemon.name
+'gengar'
 """
 
 __author__ = "Jason Garvin"
 __email__ = "jsongarvin@gmail.com"
-__version__ = "0.0.3"
+__version__ = "1.0.0"
 __copyright__ = "Copyright Jason Garvin 2023"
 __license__ = "BSD"
 

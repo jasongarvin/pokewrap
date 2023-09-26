@@ -1,11 +1,14 @@
 #!/usr/bin/env python
 
 """
-A basic template to fill out with unit tests as I learn more about them.
+Basic unit tests to ensure stability in the pokebase classes
+and ensure variables haven't changed at the endpoint level.
 
 Note that using unittest requires creating classes to run the tests
 by inheriting from unittest.TestCase and prefers using its own assert
 methods instead of the regular assert() call.
+
+As bugs are reported, the test suite will grow more robust.
 """
 
 import unittest
@@ -25,7 +28,9 @@ TEST_OBJECT = api.ApiController("pokemon", TEST_POKEMON)
 
 
 class TestApi(unittest.TestCase):
-    """A basic test template"""
+    """Basic tests to confirm variables and setup
+    of pokewrap are functional and up to date
+    """
 
     # --- Test globals ---
     def test_api_uri(self):

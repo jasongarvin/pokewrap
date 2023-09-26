@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-The beginnings of a module designed to wrap the PokeAPI API
-and consume it easier in Python and within the Pokemon Tools library.
+A small and light module designed to wrap the PokeAPI API
+and make working with its endpoints easier and more intuitive.
 
 This module gets imported into the __init__.py file in this
 directory to ease the importing process when working in adjacent
@@ -255,7 +255,7 @@ class ApiController:
             id_ = name_or_id
             name = self._convert_id_to_name(endpoint, resource, id_)
         elif is_type_str:
-            name = name_or_id
+            name = name_or_id.lower()
             id_ = self._convert_name_to_id(endpoint, resource, name)
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")

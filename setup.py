@@ -21,7 +21,8 @@ DESCRIPTION = """A wrapper library for the PokeAPI making it easier
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = []
+INSTALL_REQUIRES = ["requests"]
+SETUP_REQUIRES = ["requests"]
 
 setup(name=PACKAGE_NAME,
       version=VERSION,
@@ -33,5 +34,6 @@ setup(name=PACKAGE_NAME,
       author_email=AUTHOR_EMAIL,
       url=URL,
       install_requires=INSTALL_REQUIRES,
+      setup_requires=SETUP_REQUIRES,
       packages=find_packages()
       )
