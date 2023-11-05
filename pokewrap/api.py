@@ -137,10 +137,7 @@ class ApiController:
         """Finds the cwd, then builds the desired path to where
         all cached resources should be saved.
         """
-        cache_dir = os.getcwd()
-        api_cache = os.path.join(cache_dir, "cache.json")
-
-        return api_cache
+        return os.path.join(os.getcwd(), "cache.json")
 
     def _convert_id_to_name(self, endpoint, resource, id_):
         """Takes the endpoint and the resource id, then
@@ -207,7 +204,7 @@ class ApiController:
         except FileNotFoundError:
             pass
         except OSError as error:
-            # Cache already open
+            # Check if cache file is already open
             if error.errno == 11:
                 pass
             else:
@@ -248,15 +245,13 @@ class ApiController:
             name_or_id = int(name_or_id)
         except ValueError:
             pass
-        finally:
-            is_type_str = isinstance(name_or_id, str)
 
-        if not is_type_str:
-            id_ = name_or_id
-            name = self._convert_id_to_name(endpoint, resource, id_)
-        elif is_type_str:
+        if isinstance(name_or_id, str):
             name = name_or_id.lower()
             id_ = self._convert_name_to_id(endpoint, resource, name)
+        elif isinstance(name_or_id, int):
+            id_ = name_or_id
+            name = self._convert_id_to_name(endpoint, resource, id_)
         else:
             raise ValueError(f"'{name_or_id}' could not be converted")
 
@@ -302,14 +297,14 @@ class ApiController:
         return safe_cache_dir, safe_api_cache
 
     @staticmethod
-    def safe_make_dirs(path, mode=0o777):
+    def safe_make_dirs(path):
         """Create a leaf directory and all intermediate directories safely.
         Takes a path as either a relative or absolute directory tree
         to create new directories. Mode sets the directory permissions
         in octal.
         """
         try:
-            os.makedirs(path, mode)
+            os.makedirs(path)
         except OSError as error:
             if error.errno != 17:
                 # File exists
@@ -353,12 +348,9 @@ class ApiResourceList():
         """Finds the cwd, then builds the desired path to where
         all cached resources should be saved.
         """
-        cache_dir = os.getcwd()
-        api_cache = os.path.join(cache_dir, "cache.json")
+        return os.path.join(os.getcwd(), "cache.json")
 
-        return api_cache
-
-    def _build_query_uri(self, limit, offset):
+    def _build_query_uri(self, limit=None, offset=None):
         """In the case a get request includes a custom limit and/or offset,
         a new URI gets built adding the query parameters to ensure
         PokeAPI knows to return the correct amount of data
@@ -371,12 +363,11 @@ class ApiResourceList():
         query_url = self.endpoint
 
         if limit is not None:
-            query_url += f"/?limit={str(limit)}"
+            query_url += f"/?limit={limit}"
             if offset is not None:
-                query_url += f"&offset={str(offset)}"
+                query_url += f"&offset={offset}"
         elif offset is not None:
-            query_url += f"/?offset={str(offset)}"
-        print(query_url)
+            query_url += f"/?offset={offset}"
 
         return query_url
 
