@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = "1.0.1"
+VERSION = "1.0.6"
 PACKAGE_NAME = "pokewrap"
 AUTHOR = "Jason Garvin"
 AUTHOR_EMAIL = "jsongarvin@gmail.com"
