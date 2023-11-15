@@ -1,4 +1,4 @@
-# Pokewrap v1.0.7
+# Pokewrap v1.0.8
 
 A wrapper library for the PokeAPI making it easier to build into other python scripts through a quick import. This library is a personal project to done to learn more about package creation and publishing.
 

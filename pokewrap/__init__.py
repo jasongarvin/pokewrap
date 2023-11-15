@@ -13,7 +13,7 @@ Usage:
 
 __author__ = "Jason Garvin"
 __email__ = "jsongarvin@gmail.com"
-__version__ = "1.0.7"
+__version__ = "1.0.8"
 __copyright__ = "Copyright Jason Garvin 2023"
 __license__ = "BSD"
 
